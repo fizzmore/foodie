@@ -1,12 +1,11 @@
+import os
 import time
 from pathlib import Path
-
+from mcp import types
 import folium
 import requests
 from mcp.server.fastmcp import FastMCP
-import io
-from PIL import Image
-
+from foodie.util.gdrive import Uploader
 
 # Initialize FastMCP server
 mcp = FastMCP("map_agent")
@@ -34,18 +33,26 @@ def address_to_coordinates(address):
 
 
 @mcp.tool()
-def create_static_map(addresses, is_static=True, zoom=12, width=800, height=600):
+def create_static_map(addresses, zoom=12, width=800, height=600, file_name='temp_map.html') -> dict:
     """
-    Create static map with given addresses
-    static map is image data which can be shown in Claude desktop naively
+    Create map link text for given addresses
+    This link is markdown text can be displayed in Claude desktop
 
-    :param addresses:
-    :param zoom:
-    :param width:
-    :param height:
-    :return:
+    Args:
+        addresses (str, list):
+        zoom (int): Default zoom is 12
+        width (int): Default width is 800
+        height (int): Default height is 600
+        file_name (str, optional): Defaults to 'temp_map.html'
+
+    Returns:
+        dict:
+
     """
     coordinates = []
+
+    if type(addresses) is str:
+        addresses = [addresses]
 
     try:
     # Convert addresses to coordinates
@@ -81,32 +88,31 @@ def create_static_map(addresses, is_static=True, zoom=12, width=800, height=600)
                 tooltip=address
             ).add_to(m)
 
-        # Save as static png file
-        if is_static:
-            img_data = m._to_png(1)
-            # img = Image.open(io.BytesIO(img_data))
+        html_file = os.path.abspath(file_name)
+        m.save(html_file)
 
-            return {
-                "image_data": img_data,
-                "mime_type": "image/png",  # or image/jpeg
-                "width": width,
-                "height": height,
-            }
+        # For static image, you can use selenium + webdriver
+        # or save as HTML and screenshot manually
+        print(f"Map saved as {html_file}")
 
-            return {"image": f"data:image/png;base64,{img_data}"}
+        # Now, upload to google drive
+        gd = Uploader()
+        res = gd.upload_and_share(html_file, drive_filename='test.html',
+                                  role='reader', folder_id='17PwiYM8pTqLqEXVYwJiyvZD8mafRYjf2')
+
+        if res['success']:
+            markdown_link = f"[{'link'}]({res['share_link']})"
         else:
-            html_file = "temp_map.html"
-            m.save(html_file)
 
-            # For static image, you can use selenium + webdriver
-            # or save as HTML and screenshot manually
-            print(f"Map saved as {html_file}")
 
-            file_path = Path(html_file)
-
-            with open(file_path, 'r', encoding='utf-8') as html_file:
-                html_content = html_file.read()
-                return html_content
+        return {
+            "content": [
+                {
+                    "type": "text",
+                    "text": f"[{link_text}]({markdown_link})"
+                }
+            ]
+        }
     except Exception as e:
         return f"Error: {str(e)}"  # Return error message instead of 0
 
