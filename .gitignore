@@ -29,3 +29,6 @@ wheels/
 .vscode/
 *.swp
 *.swo
+
+# Mac
+.DS_Store
