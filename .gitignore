@@ -29,6 +29,3 @@ wheels/
 .vscode/
 *.swp
 *.swo
-
-# Temporary files
-*.html
