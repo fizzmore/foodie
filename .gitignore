@@ -1,6 +1,5 @@
 # Credentials and tokens
-foodie/util/credentials.json
-foodie/util/token.json
+.env
 
 # Python
 __pycache__/
