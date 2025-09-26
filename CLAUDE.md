@@ -37,8 +37,9 @@ pip install -e .
 ## Common Development Tasks
 
 ### Running the Map Creation
+
 ```python
-from foodie.agents.map_agent import create_static_map
+from foodie.tools.map_agent import create_static_map
 
 addresses = [
     "Restaurant A, City, State",

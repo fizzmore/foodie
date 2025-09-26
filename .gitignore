@@ -1,6 +1,7 @@
 # Credentials and tokens
 .env
 
+
 # Python
 __pycache__/
 *.py[cod]

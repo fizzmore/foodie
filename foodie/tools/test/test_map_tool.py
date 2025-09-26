@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, Mock
-from foodie.agents.map_agent import address_to_coordinates, create_static_map
+from foodie.tools.map_tool import address_to_coordinates, create_static_map
 
 
 class TestMapAgent(unittest.TestCase):
@@ -83,6 +83,14 @@ class TestMapAgent(unittest.TestCase):
             "Fisherman's Wharf, San Francisco, CA"
         ]
         print(create_static_map(addresses))
+
+
+    def test_run_add(self):
+        address = ("10305 Medlock Bridge Rd, Johns Creek, GA|" +
+                   "10970 State Bridge Rd, Johns Creek, GA|" +
+                   "6955 McGinnis Ferry Rd, Johns Creek, GA")
+
+        print(create_static_map(address, file_name="test_multiple_map"))
 
 if __name__ == '__main__':
     unittest.main()
